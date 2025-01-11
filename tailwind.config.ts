@@ -9,8 +9,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        'accent': '#00d2d2',  // Accent color (light cyan)
+        'dark': '#181818',    // Dark background color
+        'dark-secondary': '#222', // Secondary dark color for containers
+        'light': '#f5f5f5',   // Light text color
       },
     },
   },
