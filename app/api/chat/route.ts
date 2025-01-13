@@ -25,8 +25,10 @@ export async function POST(req: Request): Promise<Response> {
       top_p: 1,
     });
 
-    // The response from the model is plain text, so return it directly
-    const textResponse = response as string; // Cast response to string
+    // Extract the text content from the first choice
+    const textResponse = response.choices && response.choices[0]
+      ? response.choices[0].message.content
+      : "No response from model";
 
     return new Response(textResponse, { status: 200 });
   } catch (err) {
