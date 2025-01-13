@@ -25,35 +25,14 @@ export async function POST(req: Request): Promise<Response> {
       top_p: 1,
     });
 
-    // Since the response is text, we return it directly
-    const responseText = response.choices && response.choices[0]
-      ? response.choices[0].message.content
-      : "No valid response from the model";
+    // The response from the model is plain text, so return it directly
+    const textResponse = response as string; // Cast response to string
 
-    return new Response(
-      JSON.stringify({ response: responseText }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(textResponse, { status: 200 });
   } catch (err) {
     console.error("Error:", err);
 
-    // Handle error properly and log response body if it's an HTTP response
-    if (err instanceof Response) {
-      const errorBody = await err.text();
-      console.error("Error response body:", errorBody);
-
-      // Return error message in JSON format
-      return new Response(
-        JSON.stringify({ error: "Something went wrong. Please try again later." }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    } else {
-      // Handle unexpected errors (network issues, OpenAI SDK errors)
-      console.error("Caught error:", err);
-      return new Response(
-        JSON.stringify({ error: "Something went wrong. Please try again later." }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    // Return a plain error message if an error occurs
+    return new Response("Something went wrong. Please try again later.", { status: 500 });
   }
 }
