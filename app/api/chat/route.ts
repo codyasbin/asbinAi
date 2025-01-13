@@ -1,4 +1,3 @@
-// app/api/chat/route.ts
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -26,23 +25,31 @@ export async function POST(req: Request): Promise<Response> {
       top_p: 1,
     });
 
-    return new Response(
-      JSON.stringify({ response: response.choices[0].message.content }),
-      { status: 200 }
-    );
+    if (response.choices && response.choices[0]) {
+      return new Response(
+        JSON.stringify({ response: response.choices[0].message.content }),
+        { status: 200 }
+      );
+    } else {
+      console.error("Unexpected response format:", response);
+      return new Response(
+        JSON.stringify({ error: "Unexpected response format" }),
+        { status: 500 }
+      );
+    }
   } catch (err) {
     console.error("Error:", err);
+
+    // Check if the error is an HTTP response that might contain non-JSON data
+    if (err instanceof Response) {
+      const errorBody = await err.text();
+      console.error("Error response body:", errorBody);
+    }
+
+    // Return a generic error message
     return new Response(
-      JSON.stringify({ error: "Something went wrong" }),
+      JSON.stringify({ error: "Something went wrong. Please try again later." }),
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-// made with ❤️ by asbin 
