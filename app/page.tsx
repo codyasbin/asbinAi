@@ -42,8 +42,20 @@ export default function Home() {
         body: JSON.stringify({ prompt }),
       });
 
-      const data = await res.json();
-      setChatHistory((prev) => [...prev, { type: "bot", message: data.response }]);
+      // Get the response as plain text since backend returns plain text
+      const data = await res.text();
+
+      if (!res.ok) {
+        // Handle non-200 status
+        setChatHistory((prev) => [
+          ...prev,
+          { type: "bot", message: data || "Something went wrong. Please try again." },
+        ]);
+        return;
+      }
+
+      // Set the chat history with the AI's text response
+      setChatHistory((prev) => [...prev, { type: "bot", message: data }]);
     } catch (err) {
       console.error("Error:", err);
       setChatHistory((prev) => [...prev, { type: "bot", message: "Something went wrong. Please try again." }]);
