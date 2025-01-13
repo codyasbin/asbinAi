@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, FormEvent, KeyboardEvent } from "react";
 import { motion } from "framer-motion";
 import { FaRobot, FaPaperPlane, FaSpinner, FaMoon } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   const [prompt, setPrompt] = useState<string>("");
@@ -79,17 +80,21 @@ export default function Home() {
 
       <div
         ref={chatContainerRef}
-        className={`flex flex-col flex-grow overflow-y-auto ${darkMode ? "bg-gray-800" : "bg-white/10"} p-4 sm:p-6 rounded-lg shadow-lg space-y-2 sm:space-y-4 scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-gray-700 hover:scrollbar-thumb-indigo-400 transition-all`}
+        className={`flex flex-col flex-grow overflow-y-auto ${darkMode ? "bg-gray-800" : "bg-white/10"} p-4 sm:p-6 rounded-lg shadow-lg space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-gray-700 hover:scrollbar-thumb-indigo-400 transition-all`}
       >
         {chatHistory.map((chat, index) => (
           <motion.div
             key={index}
-            className={`p-3 sm:p-4 rounded-lg shadow-md max-w-[70%] ${chat.type === "user" ? (darkMode ? "bg-indigo-700 text-white" : "bg-indigo-500 text-white") : (darkMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-800")} self-${chat.type === "user" ? "end" : "start"}`}
+            className={`p-3 sm:p-4 rounded-lg shadow-md flex flex-col gap-5 max-w-[75%] sm:max-w-[70%] ${chat.type === "user" ? (darkMode ? "bg-indigo-700 text-white" : "bg-indigo-500 text-white") : (darkMode ? "bg-gray-700 text-gray-200" : "bg-white text-gray-800")} ${chat.type === "user" ? "self-end" : "self-start"}`}
             initial={{ opacity: 0, x: chat.type === "user" ? 50 : -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {chat.message}
+            {chat.type === "bot" ? (
+              <ReactMarkdown>{chat.message}</ReactMarkdown>
+            ) : (
+              <span>{chat.message}</span>
+            )}
           </motion.div>
         ))}
       </div>
