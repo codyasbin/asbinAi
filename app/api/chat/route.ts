@@ -25,31 +25,35 @@ export async function POST(req: Request): Promise<Response> {
       top_p: 1,
     });
 
-    if (response.choices && response.choices[0]) {
-      return new Response(
-        JSON.stringify({ response: response.choices[0].message.content }),
-        { status: 200 }
-      );
-    } else {
-      console.error("Unexpected response format:", response);
-      return new Response(
-        JSON.stringify({ error: "Unexpected response format" }),
-        { status: 500 }
-      );
-    }
+    // Since the response is text, we return it directly
+    const responseText = response.choices && response.choices[0]
+      ? response.choices[0].message.content
+      : "No valid response from the model";
+
+    return new Response(
+      JSON.stringify({ response: responseText }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
     console.error("Error:", err);
 
-    // Check if the error is an HTTP response that might contain non-JSON data
+    // Handle error properly and log response body if it's an HTTP response
     if (err instanceof Response) {
       const errorBody = await err.text();
       console.error("Error response body:", errorBody);
-    }
 
-    // Return a generic error message
-    return new Response(
-      JSON.stringify({ error: "Something went wrong. Please try again later." }),
-      { status: 500 }
-    );
+      // Return error message in JSON format
+      return new Response(
+        JSON.stringify({ error: "Something went wrong. Please try again later." }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    } else {
+      // Handle unexpected errors (network issues, OpenAI SDK errors)
+      console.error("Caught error:", err);
+      return new Response(
+        JSON.stringify({ error: "Something went wrong. Please try again later." }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
   }
 }
